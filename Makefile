@@ -94,6 +94,17 @@ test-e2e: setup-test-e2e manifests generate fmt vet ## Run the e2e tests. Expect
 cleanup-test-e2e: ## Tear down the Kind cluster used for e2e tests
 	@$(KIND) delete cluster --name $(KIND_CLUSTER)
 
+DEMO_KIND_CLUSTER ?= argo-rollouts-blue-green-traffic-labeler-demo
+DEMO_IMG ?= controller:dev
+
+.PHONY: demo-up
+demo-up: manifests generate kustomize ## Stand up a local kind cluster with Argo Rollouts + this controller + a sample blue-green Rollout.
+	KIND_CLUSTER=$(DEMO_KIND_CLUSTER) IMG=$(DEMO_IMG) KIND=$(KIND) KUBECTL=$(KUBECTL) KUSTOMIZE=$(KUSTOMIZE) ./hack/demo-env.sh up
+
+.PHONY: demo-down
+demo-down: ## Tear down the demo kind cluster.
+	KIND_CLUSTER=$(DEMO_KIND_CLUSTER) KIND=$(KIND) ./hack/demo-env.sh down
+
 .PHONY: lint
 lint: golangci-lint ## Run golangci-lint linter
 	"$(GOLANGCI_LINT)" run

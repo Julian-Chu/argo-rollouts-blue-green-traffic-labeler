@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-active
+spec:
+  selector:
+    app: demo
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-preview
+spec:
+  selector:
+    app: demo
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: sleep-5m
+spec:
+  metrics:
+  - name: sleep-5m
+    provider:
+      job:
+        spec:
+          backoffLimit: 0
+          template:
+            spec:
+              restartPolicy: Never
+              containers:
+              - name: sleep
+                image: busybox
+                command: ["sleep", "300"]
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: demo
+  annotations:
+    traffic-role-watcher/enabled: "true"
+spec:
+  replicas: 2
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo
+        image: nginxinc/nginx-unprivileged:1.25
+        ports:
+        - containerPort: 8080
+  strategy:
+    blueGreen:
+      activeService: demo-active
+      previewService: demo-preview
+      autoPromotionEnabled: false
+      postPromotionAnalysis:
+        templates:
+        - templateName: sleep-5m
