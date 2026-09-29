@@ -1,0 +1,128 @@
+.github/workflows/test-e2e.yml
+  s_0877e54828964e::t_b4057e194e68d2 1-38
+.custom-gcl.yml
+  s_0877e54828964e::t_b4057e194e68d2 1-11
+config/rbac/metrics_auth_role_binding.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-12
+AGENTS.md
+  s_0877e54828964e::t_b4057e194e68d2 1-320
+.github/workflows/test.yml
+  s_0877e54828964e::t_b4057e194e68d2 1-29
+config/manager/manager.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-102
+Makefile
+  s_0877e54828964e::t_b4057e194e68d2 1-261
+hack/boilerplate.go.txt
+  s_0877e54828964e::t_b4057e194e68d2 1-15
+config/rbac/metrics_reader_role.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-9
+.github/workflows/lint.yml
+  s_0877e54828964e::t_b4057e194e68d2 1-29
+config/default/cert_metrics_manager_patch.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-30
+.dockerignore
+  s_0877e54828964e::t_b4057e194e68d2 1-14
+go.sum
+  s_0877e54828964e::t_d3b6e495d010ec 1-302
+config/rbac/leader_election_role_binding.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-15
+config/prometheus/monitor_tls_patch.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-19
+config/manager/kustomization.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-2
+ARCHITECTURE.md
+  s_0877e54828964e::t_b5b0d7deea4820 117-119
+  s_0877e54828964e::t_a74db524607ddf 120-143
+  s_0877e54828964e::t_37d09b072d0992 1-116
+PROJECT
+  s_0877e54828964e::t_b4057e194e68d2 1-5,7-9,17
+  s_0877e54828964e::t_273ad99453053b 11-12,14-16
+  s_0877e54828964e::t_586408ee48f2ac 6,10,13
+test/utils/utils.go
+  s_0877e54828964e::t_b4057e194e68d2 1-226
+internal/controller/rollout_controller_test.go
+  s_0877e54828964e::t_273ad99453053b 1-19,41,210,214,216
+  s_0877e54828964e::t_adba562cd6bab0 20-40,42-178,180-192,194-209,211-213,215,217-219
+  s_0877e54828964e::t_2af119195a65d6 179,193
+config/rbac/role.yaml
+  s_0877e54828964e::t_4880b20ac0bb28 1,7-38
+  s_0877e54828964e::t_b4057e194e68d2 2-6
+config/default/kustomization.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-233
+config/rbac/leader_election_role.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-40
+test/e2e/e2e_test.go
+  s_0877e54828964e::t_586408ee48f2ac 33
+  s_0877e54828964e::t_b4057e194e68d2 1-32,34-339
+.golangci.yml
+  s_0877e54828964e::t_b4057e194e68d2 1-68
+config/prometheus/monitor.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-27
+go.mod
+  s_0877e54828964e::t_790bbcc1fcead2 6,9,47
+  s_0877e54828964e::t_b047fc2c80046b 110-149
+  s_0877e54828964e::t_b4057e194e68d2 2,4-5,7-8,10-11,13-46,49-109
+  s_0877e54828964e::t_586408ee48f2ac 1
+  s_0877e54828964e::t_86896a0ef3f4c2 3
+  s_0877e54828964e::t_b962744dea7794 12,48
+config/network-policy/kustomization.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-2
+Dockerfile
+  s_0877e54828964e::t_b4057e194e68d2 1-33
+.devcontainer/post-install.sh
+  s_0877e54828964e::t_b4057e194e68d2 1-153
+internal/controller/rollout_controller.go
+  s_0877e54828964e::t_d73582e607b708 21,23-27,29,35,38,41-46,50-56,59-79,81-131,133-136,138-142,144-231,236,241
+  s_0877e54828964e::t_273ad99453053b 1-20,22,28,30,32,34,36-37,47-49,57-58,80,132,137,143,237-240,242,244-246
+  s_0877e54828964e::t_57906035ef2de5 39-40
+  s_0877e54828964e::t_fe5ef9e7c6e294 232-235,243
+  s_0877e54828964e::t_de3a45e0a9895e 31,33
+config/rbac/kustomization.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-20
+config/network-policy/allow-metrics-traffic.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-26
+.devcontainer/devcontainer.json
+  s_0877e54828964e::t_b4057e194e68d2 1-35
+config/default/manager_metrics_patch.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-4
+config/rbac/service_account.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-8
+config/default/metrics_service.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-18
+test/e2e/e2e_suite_test.go
+  s_0877e54828964e::t_b4057e194e68d2 1-30,32-119
+  s_0877e54828964e::t_586408ee48f2ac 31
+config/rbac/role_binding.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-15
+config/rbac/metrics_auth_role.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-17
+cmd/main.go
+  s_0877e54828964e::t_b4057e194e68d2 1-27,29-36,39-48,50-62,72-84,86-148,150-166,177-193
+  s_0877e54828964e::t_586408ee48f2ac 38,149
+  s_0877e54828964e::t_0308b81245ac12 85
+  s_0877e54828964e::t_d74adf0650d6cd 49
+  s_0877e54828964e::t_57906035ef2de5 168-172
+  s_0877e54828964e::t_273ad99453053b 37,167,173-176
+  s_0877e54828964e::t_8ed752e19356bd 28
+  s_0877e54828964e::t_cf34c9f630aa27 63-71
+.gitignore
+  s_0877e54828964e::t_020db95a76603f 23-25
+config/prometheus/kustomization.yaml
+  s_0877e54828964e::t_b4057e194e68d2 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "775bf4f1784ad93626eed9dae3d74b586c205621",
+  "prompts": {},
+  "sessions": {
+    "s_0877e54828964e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c91fb891-0e69-4961-865b-322d4e597b38",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Julian-Chu <yu.chu@deliveryhero.com>"
+    }
+  }
+}
