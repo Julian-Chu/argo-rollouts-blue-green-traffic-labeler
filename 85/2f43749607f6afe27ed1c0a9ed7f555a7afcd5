@@ -1,0 +1,30 @@
+config/default/metrics_service.yaml
+  s_3746d4945df0dd::t_0297a8205767eb 8
+README.md
+  s_3746d4945df0dd::t_954eff224a2d25 3-22
+hack/demo-env.sh
+  s_3746d4945df0dd::t_a560220e30f365 24-27
+  s_3746d4945df0dd::t_92dec8a8e1b5ee 28
+  s_3746d4945df0dd::t_8ee8d0ab2bc5e0 1-23,29-54
+config/samples/rollout-bluegreen-demo.yaml
+  s_3746d4945df0dd::t_d4acb2f5e6033a 1-23,43-68
+  s_3746d4945df0dd::t_8920deb64df6ca 24-42,69-71
+Makefile
+  s_3746d4945df0dd::t_f4d45ddcb46018 97-107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "852f43749607f6afe27ed1c0a9ed7f555a7afcd5",
+  "prompts": {},
+  "sessions": {
+    "s_3746d4945df0dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d6222532-1b5f-4b91-a1be-da47f1eacb8b",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Julian-Chu <yu.chu@deliveryhero.com>"
+    }
+  }
+}
