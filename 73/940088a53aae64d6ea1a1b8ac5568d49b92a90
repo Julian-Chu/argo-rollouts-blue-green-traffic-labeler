@@ -1,0 +1,52 @@
+config/samples/rollout-bluegreen-demo.yaml
+  s_46e7c3ee69721c::t_8ddb0ec7c92ef5 51
+  s_37b0c49b90a2c1::t_8bd882ea0fa3c5 69
+hack/demo-env.sh
+  s_46e7c3ee69721c::t_4ca29272ebe2aa 30-34
+  s_46e7c3ee69721c::t_a1023f809e437c 49
+Makefile
+  s_46e7c3ee69721c::t_ab4599bb5ee0bc 108-111
+README.md
+  s_46e7c3ee69721c::t_5d657881ee8a56 11-13
+CONTROLLER_REVIEW.md
+  s_c37cbb7b4ee358::t_c91b611378c477 15-19
+  s_c37cbb7b4ee358::t_77478b580fb2cd 57-61,63-67,71
+  s_c37cbb7b4ee358::t_c441b5d6b32834 68-70
+  s_c37cbb7b4ee358::t_a35e4b947f9fee 41-56
+  s_c37cbb7b4ee358::t_a63c96310cf50a 1-14,20-40
+  s_c37cbb7b4ee358::t_c38173e8bda86a 62
+config/manager/kustomization.yaml
+  s_c37cbb7b4ee358::t_247f595f752030 3-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "73940088a53aae64d6ea1a1b8ac5568d49b92a90",
+  "prompts": {},
+  "sessions": {
+    "s_37b0c49b90a2c1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "797bc60a-9e81-41ca-a765-938b8b5c3059",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Julian-Chu <yulang.chu@gmail.com>"
+    },
+    "s_46e7c3ee69721c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ff33d4ef-615c-4974-95db-f7d38fea4bbc",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Julian-Chu <yulang.chu@gmail.com>"
+    },
+    "s_c37cbb7b4ee358": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f61effe3-d08d-4cbd-ac1b-d0cefaba1664",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Julian-Chu <yulang.chu@gmail.com>"
+    }
+  }
+}
