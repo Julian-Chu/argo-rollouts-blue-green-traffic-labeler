@@ -1,0 +1,28 @@
+Makefile
+  s_39bac08541922c::t_97ff61d5fc5b59 214-216
+config/manager/manager.yaml
+  s_39bac08541922c::t_d256676ce68a49 13
+test/e2e/e2e_test.go
+  s_39bac08541922c::t_37fa6f567f2165 43
+  s_39bac08541922c::t_cdca9ee54c408a 162
+internal/controller/rollout_controller_test.go
+  s_39bac08541922c::t_00b5640d9ec427 41
+  s_39bac08541922c::t_b05172aa183de8 42
+  s_39bac08541922c::t_be85347fbf5da1 147-151,165-166,179-181,193-195,207-211
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "edf3c2c482e6eb5c6a49a34af4fd5d312233159c",
+  "prompts": {},
+  "sessions": {
+    "s_39bac08541922c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f1dc42b4-76fd-4397-88e6-a773b3efa078",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Julian-Chu <yulang.chu@gmail.com>"
+    }
+  }
+}
