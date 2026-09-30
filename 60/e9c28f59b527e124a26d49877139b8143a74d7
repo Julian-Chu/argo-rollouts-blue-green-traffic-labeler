@@ -1,0 +1,21 @@
+config/manager/kustomization.yaml
+  s_cb4851f1836f51::t_9280cd76a0ebfa 7
+Makefile
+  s_cb4851f1836f51::t_b926aae337af5e 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "60e9c28f59b527e124a26d49877139b8143a74d7",
+  "prompts": {},
+  "sessions": {
+    "s_cb4851f1836f51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "14a9b2ee-37d5-435f-94b3-659993f82c02",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Julian-Chu <yulang.chu@gmail.com>"
+    }
+  }
+}
