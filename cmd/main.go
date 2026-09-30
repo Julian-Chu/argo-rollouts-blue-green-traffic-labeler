@@ -61,13 +61,13 @@ func main() {
 	var enableHTTP2 bool
 	var tlsOpts []func(*tls.Config)
 	var enabledAnnotation string
-	var trafficRoleLabel string
-	var trafficRoleActiveValue string
-	flag.StringVar(&enabledAnnotation, "enabled-annotation", "traffic-role-watcher/enabled",
-		"Annotation key that opts a Rollout into traffic-role labeling when set to \"true\".")
-	flag.StringVar(&trafficRoleLabel, "traffic-role-label", "traffic-role",
+	var trafficActiveLabel string
+	var trafficActiveValue string
+	flag.StringVar(&enabledAnnotation, "enabled-annotation", "traffic-active-watcher/enabled",
+		"Annotation key that opts a Rollout into traffic-active labeling when set to \"true\".")
+	flag.StringVar(&trafficActiveLabel, "traffic-active-label", "traffic-active",
 		"Label key applied to the ReplicaSet/Pods currently receiving live traffic.")
-	flag.StringVar(&trafficRoleActiveValue, "traffic-role-active-value", "active",
+	flag.StringVar(&trafficActiveValue, "traffic-active-value", "true",
 		"Label value applied to the ReplicaSet/Pods currently receiving live traffic.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", "0", "The address the metrics endpoint binds to. "+
 		"Use :8443 for HTTPS or :8080 for HTTP, or leave as 0 to disable the metrics service.")
@@ -165,11 +165,11 @@ func main() {
 	}
 
 	if err := (&controller.RolloutReconciler{
-		Client:                 mgr.GetClient(),
-		Scheme:                 mgr.GetScheme(),
-		EnabledAnnotation:      enabledAnnotation,
-		TrafficRoleLabel:       trafficRoleLabel,
-		TrafficRoleActiveValue: trafficRoleActiveValue,
+		Client:             mgr.GetClient(),
+		Scheme:             mgr.GetScheme(),
+		EnabledAnnotation:  enabledAnnotation,
+		TrafficActiveLabel: trafficActiveLabel,
+		TrafficActiveValue: trafficActiveValue,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "Failed to create controller", "controller", "rollout")
 		os.Exit(1)

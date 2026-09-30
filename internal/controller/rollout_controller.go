@@ -36,9 +36,9 @@ import (
 )
 
 const (
-	defaultEnabledAnnotation      = "traffic-role-watcher/enabled"
-	defaultTrafficRoleLabel       = "traffic-role"
-	defaultTrafficRoleActiveValue = "active"
+	defaultEnabledAnnotation  = "traffic-active-watcher/enabled"
+	defaultTrafficActiveLabel = "traffic-active"
+	defaultTrafficActiveValue = "true"
 )
 
 // RolloutReconciler reconciles a Rollout object, labeling the pods and
@@ -50,10 +50,10 @@ type RolloutReconciler struct {
 
 	// EnabledAnnotation is the opt-in annotation key checked on the Rollout.
 	EnabledAnnotation string
-	// TrafficRoleLabel is the label key applied to the active RS/pods.
-	TrafficRoleLabel string
-	// TrafficRoleActiveValue is the label value applied to the active RS/pods.
-	TrafficRoleActiveValue string
+	// TrafficActiveLabel is the label key applied to the active RS/pods.
+	TrafficActiveLabel string
+	// TrafficActiveValue is the label value applied to the active RS/pods.
+	TrafficActiveValue string
 }
 
 // setDefaults fills any unset configuration fields with their defaults.
@@ -61,11 +61,11 @@ func (r *RolloutReconciler) setDefaults() {
 	if r.EnabledAnnotation == "" {
 		r.EnabledAnnotation = defaultEnabledAnnotation
 	}
-	if r.TrafficRoleLabel == "" {
-		r.TrafficRoleLabel = defaultTrafficRoleLabel
+	if r.TrafficActiveLabel == "" {
+		r.TrafficActiveLabel = defaultTrafficActiveLabel
 	}
-	if r.TrafficRoleActiveValue == "" {
-		r.TrafficRoleActiveValue = defaultTrafficRoleActiveValue
+	if r.TrafficActiveValue == "" {
+		r.TrafficActiveValue = defaultTrafficActiveValue
 	}
 }
 
@@ -75,7 +75,7 @@ func (r *RolloutReconciler) setDefaults() {
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch;patch
 
 // Reconcile labels the ReplicaSet and Pods that match the Rollout's current
-// blue-green ActiveSelector with the configured traffic-role label, and
+// blue-green ActiveSelector with the configured traffic-active label, and
 // strips the label from every other RS/pod owned by the Rollout.
 func (r *RolloutReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
@@ -103,6 +103,8 @@ func (r *RolloutReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 	}
 
+	log.Info("Reconciling Rollout traffic-active labels", "rollout", rollout.Name, "watched", watched, "activeSelector", activeHash)
+
 	selector, err := metav1.LabelSelectorAsSelector(rollout.Spec.Selector)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -122,7 +124,7 @@ func (r *RolloutReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 		desired := ""
 		if activeHash != "" && rs.Labels[rolloutsv1alpha1.DefaultRolloutUniqueLabelKey] == activeHash {
-			desired = r.TrafficRoleActiveValue
+			desired = r.TrafficActiveValue
 		}
 
 		if err := r.patchReplicaSetLabel(ctx, rs, desired); err != nil {
@@ -136,7 +138,7 @@ func (r *RolloutReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	if err := errors.Join(errs...); err != nil {
-		log.Error(err, "failed to reconcile traffic-role labels")
+		log.Error(err, "failed to reconcile traffic-active labels")
 		return ctrl.Result{}, err
 	}
 
@@ -159,34 +161,40 @@ func isOwnedBy(refs []metav1.OwnerReference, uid types.UID) bool {
 }
 
 // patchReplicaSetLabel strategic-merge-patches the RS's pod template label
-// so that future pods created from it inherit the desired traffic-role
+// so that future pods created from it inherit the desired traffic-active
 // value. Kubernetes never retroactively relabels existing pods when a
 // template changes, so relabelPods handles the currently-running pods.
 func (r *RolloutReconciler) patchReplicaSetLabel(ctx context.Context, rs *appsv1.ReplicaSet, desired string) error {
-	current := rs.Spec.Template.Labels[r.TrafficRoleLabel]
+	current := rs.Spec.Template.Labels[r.TrafficActiveLabel]
 	if current == desired {
 		return nil
 	}
 
 	patch := client.MergeFrom(rs.DeepCopy())
 	if desired == "" {
-		delete(rs.Spec.Template.Labels, r.TrafficRoleLabel)
+		delete(rs.Spec.Template.Labels, r.TrafficActiveLabel)
 	} else {
 		if rs.Spec.Template.Labels == nil {
 			rs.Spec.Template.Labels = map[string]string{}
 		}
-		rs.Spec.Template.Labels[r.TrafficRoleLabel] = desired
+		rs.Spec.Template.Labels[r.TrafficActiveLabel] = desired
 	}
-	return r.Patch(ctx, rs, patch)
+	if err := r.Patch(ctx, rs, patch); err != nil {
+		return err
+	}
+	logf.FromContext(ctx).Info("Patched ReplicaSet traffic-active label", "replicaSet", rs.Name, "from", current, "to", desired)
+	return nil
 }
 
 // relabelPods patches every currently-running pod owned by rs to carry (or
-// no longer carry) the traffic-role label.
+// no longer carry) the traffic-active label.
 func (r *RolloutReconciler) relabelPods(ctx context.Context, rs *appsv1.ReplicaSet, desired string) error {
 	var pods corev1.PodList
 	if err := r.List(ctx, &pods, client.InNamespace(rs.Namespace), client.MatchingLabels(rs.Spec.Selector.MatchLabels)); err != nil {
 		return err
 	}
+
+	log := logf.FromContext(ctx)
 
 	var errs []error
 	for i := range pods.Items {
@@ -194,22 +202,25 @@ func (r *RolloutReconciler) relabelPods(ctx context.Context, rs *appsv1.ReplicaS
 		if !isOwnedBy(pod.OwnerReferences, rs.UID) {
 			continue
 		}
-		if pod.Labels[r.TrafficRoleLabel] == desired {
+		current := pod.Labels[r.TrafficActiveLabel]
+		if current == desired {
 			continue
 		}
 
 		patch := client.MergeFrom(pod.DeepCopy())
 		if desired == "" {
-			delete(pod.Labels, r.TrafficRoleLabel)
+			delete(pod.Labels, r.TrafficActiveLabel)
 		} else {
 			if pod.Labels == nil {
 				pod.Labels = map[string]string{}
 			}
-			pod.Labels[r.TrafficRoleLabel] = desired
+			pod.Labels[r.TrafficActiveLabel] = desired
 		}
 		if err := r.Patch(ctx, pod, patch); err != nil {
 			errs = append(errs, err)
+			continue
 		}
+		log.Info("Patched Pod traffic-active label", "pod", pod.Name, "replicaSet", rs.Name, "from", current, "to", desired)
 	}
 	return errors.Join(errs...)
 }

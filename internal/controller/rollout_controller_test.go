@@ -129,7 +129,7 @@ func assertLabel(t *testing.T, c client.Client, rsName string, wantRSLabel strin
 	if err := c.Get(context.Background(), client.ObjectKey{Namespace: testNamespace, Name: rsName}, &rs); err != nil {
 		t.Fatalf("get ReplicaSet %s: %v", rsName, err)
 	}
-	if got := rs.Spec.Template.Labels[defaultTrafficRoleLabel]; got != wantRSLabel {
+	if got := rs.Spec.Template.Labels[defaultTrafficActiveLabel]; got != wantRSLabel {
 		t.Errorf("ReplicaSet %s template label = %q, want %q", rsName, got, wantRSLabel)
 	}
 
@@ -137,7 +137,7 @@ func assertLabel(t *testing.T, c client.Client, rsName string, wantRSLabel strin
 	if err := c.Get(context.Background(), client.ObjectKey{Namespace: testNamespace, Name: podName}, &pod); err != nil {
 		t.Fatalf("get Pod %s: %v", podName, err)
 	}
-	if got := pod.Labels[defaultTrafficRoleLabel]; got != wantPodLabel {
+	if got := pod.Labels[defaultTrafficActiveLabel]; got != wantPodLabel {
 		t.Errorf("Pod %s label = %q, want %q", podName, got, wantPodLabel)
 	}
 }
@@ -146,9 +146,9 @@ func TestReconcile_ActiveAndInactiveGetLabeledCorrectly(t *testing.T) {
 	scheme := newScheme(t)
 	rollout := newRollout(map[string]string{defaultEnabledAnnotation: testEnabled}, true, testHashA)
 	activeRS := newReplicaSet("demo-a", testRSUID, testHashA, nil)
-	inactiveRS := newReplicaSet("demo-b", testRS2UID, "hash-b", map[string]string{defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	inactiveRS := newReplicaSet("demo-b", testRS2UID, "hash-b", map[string]string{defaultTrafficActiveLabel: defaultTrafficActiveValue})
 	activePod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA})
-	inactivePod := newPod("demo-b-pod", testRS2UID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-b", defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	inactivePod := newPod("demo-b-pod", testRS2UID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-b", defaultTrafficActiveLabel: defaultTrafficActiveValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).
 		WithObjects(rollout, activeRS, inactiveRS, activePod, inactivePod).
@@ -156,7 +156,7 @@ func TestReconcile_ActiveAndInactiveGetLabeledCorrectly(t *testing.T) {
 
 	reconcile(t, c)
 
-	assertLabel(t, c, "demo-a", "active", "demo-a-pod", "active")
+	assertLabel(t, c, "demo-a", defaultTrafficActiveValue, "demo-a-pod", defaultTrafficActiveValue)
 	assertLabel(t, c, "demo-b", "", "demo-b-pod", "")
 }
 
@@ -177,8 +177,8 @@ func TestReconcile_DisabledRolloutCleansUpStaleLabels(t *testing.T) {
 	scheme := newScheme(t)
 	// No opt-in annotation: previously labeled RS/pods must be cleaned up.
 	rollout := newRollout(nil, true, testHashA)
-	rs := newReplicaSet("demo-a", testRSUID, testHashA, map[string]string{defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
-	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA, defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	rs := newReplicaSet("demo-a", testRSUID, testHashA, map[string]string{defaultTrafficActiveLabel: defaultTrafficActiveValue})
+	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA, defaultTrafficActiveLabel: defaultTrafficActiveValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).WithObjects(rollout, rs, pod).Build()
 
@@ -191,8 +191,8 @@ func TestReconcile_NonBlueGreenRolloutCleansUpStaleLabels(t *testing.T) {
 	scheme := newScheme(t)
 	// Annotation still set, but blue-green strategy dropped.
 	rollout := newRollout(map[string]string{defaultEnabledAnnotation: testEnabled}, false, testHashA)
-	rs := newReplicaSet("demo-a", testRSUID, testHashA, map[string]string{defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
-	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA, defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	rs := newReplicaSet("demo-a", testRSUID, testHashA, map[string]string{defaultTrafficActiveLabel: defaultTrafficActiveValue})
+	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA, defaultTrafficActiveLabel: defaultTrafficActiveValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).WithObjects(rollout, rs, pod).Build()
 
@@ -206,9 +206,9 @@ func TestReconcile_RollbackRelabelsWithoutSpecialCasing(t *testing.T) {
 	// ActiveSelector reverted from hash-b back to hash-a (abort/rollback).
 	rollout := newRollout(map[string]string{defaultEnabledAnnotation: testEnabled}, true, testHashA)
 	revertedActiveRS := newReplicaSet("demo-a", testRSUID, testHashA, nil)
-	previouslyActiveRS := newReplicaSet("demo-b", testRS2UID, "hash-b", map[string]string{defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	previouslyActiveRS := newReplicaSet("demo-b", testRS2UID, "hash-b", map[string]string{defaultTrafficActiveLabel: defaultTrafficActiveValue})
 	revertedActivePod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA})
-	previouslyActivePod := newPod("demo-b-pod", testRS2UID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-b", defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	previouslyActivePod := newPod("demo-b-pod", testRS2UID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-b", defaultTrafficActiveLabel: defaultTrafficActiveValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).
 		WithObjects(rollout, revertedActiveRS, previouslyActiveRS, revertedActivePod, previouslyActivePod).
@@ -216,6 +216,6 @@ func TestReconcile_RollbackRelabelsWithoutSpecialCasing(t *testing.T) {
 
 	reconcile(t, c)
 
-	assertLabel(t, c, "demo-a", "active", "demo-a-pod", "active")
+	assertLabel(t, c, "demo-a", defaultTrafficActiveValue, "demo-a-pod", defaultTrafficActiveValue)
 	assertLabel(t, c, "demo-b", "", "demo-b-pod", "")
 }
