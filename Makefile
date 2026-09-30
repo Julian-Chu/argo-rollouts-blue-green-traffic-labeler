@@ -105,6 +105,10 @@ demo-up: manifests generate kustomize ## Stand up a local kind cluster with Argo
 demo-down: ## Tear down the demo kind cluster.
 	KIND_CLUSTER=$(DEMO_KIND_CLUSTER) KIND=$(KIND) ./hack/demo-env.sh down
 
+.PHONY: demo-dashboard
+demo-dashboard: ## Port-forward the Argo Rollouts dashboard (installed by demo-up) to localhost:3100.
+	$(KUBECTL) port-forward -n argo-rollouts svc/argo-rollouts-dashboard 3100:3100
+
 .PHONY: lint
 lint: golangci-lint ## Run golangci-lint linter
 	"$(GOLANGCI_LINT)" run

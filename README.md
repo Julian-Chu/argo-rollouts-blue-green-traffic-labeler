@@ -8,8 +8,9 @@ Prerequisites: `kind`, `docker`, `kubectl` (and optionally the
 plugin, for promoting the rollout).
 
 ```
-make demo-up    # kind cluster + Argo Rollouts + this controller + a sample blue-green Rollout
-make demo-down  # tear down the kind cluster
+make demo-up         # kind cluster + Argo Rollouts + dashboard + this controller + a sample blue-green Rollout
+make demo-dashboard  # port-forward the dashboard to http://localhost:3100
+make demo-down       # tear down the kind cluster
 ```
 
 Exercise it:

@@ -27,6 +27,11 @@ up() {
     -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
   "$KUBECTL" wait --for=condition=available --timeout=180s deployment/argo-rollouts -n argo-rollouts
 
+  echo "Installing Argo Rollouts dashboard..."
+  "$KUBECTL" apply --server-side --force-conflicts -n argo-rollouts \
+    -f https://github.com/argoproj/argo-rollouts/releases/latest/download/dashboard-install.yaml
+  "$KUBECTL" wait --for=condition=available --timeout=180s deployment/argo-rollouts-dashboard -n argo-rollouts
+
   echo "Building and loading controller image '$IMG'..."
   docker build -t "$IMG" "$ROOT_DIR"
   "$KIND" load docker-image "$IMG" --name "$KIND_CLUSTER"
@@ -41,6 +46,7 @@ up() {
   "$KUBECTL" apply -f "$ROOT_DIR/config/samples/rollout-bluegreen-demo.yaml"
 
   echo "Done. Try: kubectl get pods -l traffic-role=active"
+  echo "Dashboard: kubectl port-forward -n argo-rollouts svc/argo-rollouts-dashboard 3100:3100"
 }
 
 down() {

@@ -48,6 +48,7 @@ metadata:
 spec:
   replicas: 2
   revisionHistoryLimit: 2
+  progressDeadlineSeconds: 600
   selector:
     matchLabels:
       app: demo
@@ -65,7 +66,7 @@ spec:
     blueGreen:
       activeService: demo-active
       previewService: demo-preview
-      autoPromotionEnabled: false
+      autoPromotionEnabled: true
       postPromotionAnalysis:
         templates:
         - templateName: sleep-5m
