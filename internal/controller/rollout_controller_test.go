@@ -38,6 +38,8 @@ const (
 	testRolloutUID = types.UID("rollout-uid")
 	testRSUID      = types.UID("rs-uid")
 	testRS2UID     = types.UID("rs2-uid")
+	testEnabled    = "true"
+	testHashA      = "hash-a"
 )
 
 func newScheme(t *testing.T) *runtime.Scheme {
@@ -142,11 +144,11 @@ func assertLabel(t *testing.T, c client.Client, rsName string, wantRSLabel strin
 
 func TestReconcile_ActiveAndInactiveGetLabeledCorrectly(t *testing.T) {
 	scheme := newScheme(t)
-	rollout := newRollout(map[string]string{defaultEnabledAnnotation: "true"}, true, "hash-a")
-	activeRS := newReplicaSet("demo-a", testRSUID, "hash-a", nil)
-	inactiveRS := newReplicaSet("demo-b", testRS2UID, "hash-b", map[string]string{defaultTrafficRoleLabel: "active"})
-	activePod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-a"})
-	inactivePod := newPod("demo-b-pod", testRS2UID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-b", defaultTrafficRoleLabel: "active"})
+	rollout := newRollout(map[string]string{defaultEnabledAnnotation: testEnabled}, true, testHashA)
+	activeRS := newReplicaSet("demo-a", testRSUID, testHashA, nil)
+	inactiveRS := newReplicaSet("demo-b", testRS2UID, "hash-b", map[string]string{defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	activePod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA})
+	inactivePod := newPod("demo-b-pod", testRS2UID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-b", defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).
 		WithObjects(rollout, activeRS, inactiveRS, activePod, inactivePod).
@@ -160,8 +162,8 @@ func TestReconcile_ActiveAndInactiveGetLabeledCorrectly(t *testing.T) {
 
 func TestReconcile_NotYetPromotedIsNoOp(t *testing.T) {
 	scheme := newScheme(t)
-	rollout := newRollout(map[string]string{defaultEnabledAnnotation: "true"}, true, "")
-	rs := newReplicaSet("demo-a", testRSUID, "hash-a", nil)
+	rollout := newRollout(map[string]string{defaultEnabledAnnotation: testEnabled}, true, "")
+	rs := newReplicaSet("demo-a", testRSUID, testHashA, nil)
 	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).WithObjects(rollout, rs, pod).Build()
@@ -174,9 +176,9 @@ func TestReconcile_NotYetPromotedIsNoOp(t *testing.T) {
 func TestReconcile_DisabledRolloutCleansUpStaleLabels(t *testing.T) {
 	scheme := newScheme(t)
 	// No opt-in annotation: previously labeled RS/pods must be cleaned up.
-	rollout := newRollout(nil, true, "hash-a")
-	rs := newReplicaSet("demo-a", testRSUID, "hash-a", map[string]string{defaultTrafficRoleLabel: "active"})
-	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-a", defaultTrafficRoleLabel: "active"})
+	rollout := newRollout(nil, true, testHashA)
+	rs := newReplicaSet("demo-a", testRSUID, testHashA, map[string]string{defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA, defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).WithObjects(rollout, rs, pod).Build()
 
@@ -188,9 +190,9 @@ func TestReconcile_DisabledRolloutCleansUpStaleLabels(t *testing.T) {
 func TestReconcile_NonBlueGreenRolloutCleansUpStaleLabels(t *testing.T) {
 	scheme := newScheme(t)
 	// Annotation still set, but blue-green strategy dropped.
-	rollout := newRollout(map[string]string{defaultEnabledAnnotation: "true"}, false, "hash-a")
-	rs := newReplicaSet("demo-a", testRSUID, "hash-a", map[string]string{defaultTrafficRoleLabel: "active"})
-	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-a", defaultTrafficRoleLabel: "active"})
+	rollout := newRollout(map[string]string{defaultEnabledAnnotation: testEnabled}, false, testHashA)
+	rs := newReplicaSet("demo-a", testRSUID, testHashA, map[string]string{defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	pod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA, defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).WithObjects(rollout, rs, pod).Build()
 
@@ -202,11 +204,11 @@ func TestReconcile_NonBlueGreenRolloutCleansUpStaleLabels(t *testing.T) {
 func TestReconcile_RollbackRelabelsWithoutSpecialCasing(t *testing.T) {
 	scheme := newScheme(t)
 	// ActiveSelector reverted from hash-b back to hash-a (abort/rollback).
-	rollout := newRollout(map[string]string{defaultEnabledAnnotation: "true"}, true, "hash-a")
-	revertedActiveRS := newReplicaSet("demo-a", testRSUID, "hash-a", nil)
-	previouslyActiveRS := newReplicaSet("demo-b", testRS2UID, "hash-b", map[string]string{defaultTrafficRoleLabel: "active"})
-	revertedActivePod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-a"})
-	previouslyActivePod := newPod("demo-b-pod", testRS2UID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-b", defaultTrafficRoleLabel: "active"})
+	rollout := newRollout(map[string]string{defaultEnabledAnnotation: testEnabled}, true, testHashA)
+	revertedActiveRS := newReplicaSet("demo-a", testRSUID, testHashA, nil)
+	previouslyActiveRS := newReplicaSet("demo-b", testRS2UID, "hash-b", map[string]string{defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
+	revertedActivePod := newPod("demo-a-pod", testRSUID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: testHashA})
+	previouslyActivePod := newPod("demo-b-pod", testRS2UID, map[string]string{testAppLabel: testAppValue, rolloutsv1alpha1.DefaultRolloutUniqueLabelKey: "hash-b", defaultTrafficRoleLabel: defaultTrafficRoleActiveValue})
 
 	c := fake.NewClientBuilder().WithScheme(scheme).
 		WithObjects(rollout, revertedActiveRS, previouslyActiveRS, revertedActivePod, previouslyActivePod).

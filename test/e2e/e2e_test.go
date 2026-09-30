@@ -40,7 +40,7 @@ const namespace = "argo-rollouts-blue-green-traffic-labeler-system"
 const serviceAccountName = "argo-rollouts-blue-green-traffic-labeler-controller-manager"
 
 // metricsServiceName is the name of the metrics service of the project
-const metricsServiceName = "argo-rollouts-blue-green-traffic-labeler-controller-manager-metrics-service"
+const metricsServiceName = "argo-rollouts-blue-green-traffic-labeler-metrics-service"
 
 // metricsRoleBindingName is the name of the RBAC that will be created to allow get the metrics data
 const metricsRoleBindingName = "argo-rollouts-blue-green-traffic-labeler-metrics-binding"
@@ -159,7 +159,7 @@ var _ = Describe("Manager", Ordered, func() {
 				podNames := utils.GetNonEmptyLines(podOutput)
 				g.Expect(podNames).To(HaveLen(1), "expected 1 controller pod running")
 				controllerPodName = podNames[0]
-				g.Expect(controllerPodName).To(ContainSubstring("controller-manager"))
+				g.Expect(controllerPodName).To(ContainSubstring("manager"))
 
 				By("validating the pod's status")
 				cmd = exec.Command("kubectl", "get",
